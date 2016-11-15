@@ -1,0 +1,33 @@
+  
+	(3
+swap2: macro &1, &2, &3	(4
+	mult &2, &2	(5
+	store &3, &3 
+	input &2, &1	(7
+	end macro	(8
+	(9
+swap: macro &a, &b, &t	(10
+	copy &a, &t	(11
+	copy &b, &a	(12
+	swap2 teste1, teste2, teste3 
+	copy &t, &b	(14
+	end macro	(15
+	(16
+section text	(17
+(18
+	swap testamacro, triangulo, b	(19
+	inpt	b	(20
+	input	h	(21
+	lod	b	(22
+	mult	h	(23
+(24
+	div	dois	(25
+	store	r	(26
+	output	r	(27
+	stop	(28
+	(29
+section data	(30
+	b:	space	(31
+	h:	space	(32
+	r:	space	(33
+	dois:	const	2	(34
