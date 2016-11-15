@@ -1,0 +1,27 @@
+1. Montador:
+	-Modificar o montador pra poder receber de 1 a 3 arquivos
+	-Verificar, caso receba mais de 1 arquivo, a existência do BEGIN e do END
+	-Inserir cabeçalho com:
+		.nome do programa (nome do arquivo);
+		.tamanho do código;
+		.informação de realocação (em mapa de bits).
+	-> Obs. 1: O cabeçalho deve ser identificado pela letra H, e o código em si, pela letra T.
+	-> Obs. 2: O cabeçalho também deve conter a tabela de uso (TU) e a tabela de definições (TD)
+
+2. Ligador:
+	-(Tópicos relativos aos pormenores do ligador em si)
+	-Deve receber de 1 a 3 arquivos objeto (da saída do montador)
+	-A ordem de entrada dos arquivos define a ordem de ligação
+	-A saída do ligador deve ser UM arquivo, sem extensão
+	-Nesse arquivo, o cabeçalho deve conter:
+		.o nome do programa (nome do 1º arquivo objeto);
+		.tamanho do código;
+		.informação de realocação (em mapa de bits).
+
+3. Carregador Realocador:
+	-Deve receber: arquivo de saida do ligador e sequencia de numeros
+	-Simulação como no trabalho anterior com a diferença do cabeçalho
+	-Arquivo de saída com imagem da memória (usando numeros inseridos)
+	-verificar se um desses chunks é capaz de suportar o programa inteiro
+        	.caso contrário, mesmo dividindo o programa, indicar erro
+        	.caso tenha como, modificar info relativa p/ endereços corretos e colocar o codigo final sem cabeçalho no arquivo de saída (extensão .im)
