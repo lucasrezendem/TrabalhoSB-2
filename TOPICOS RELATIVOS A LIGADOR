@@ -1,0 +1,21 @@
+TOPICOS RELATIVOS A LIGADOR
+1 - (IMPORTANTE) COMO O CABELHO DEVE ESTAR AO SAIR DO MONTADOR (UTILIZANDO EXEMPLO DO PDF DE DEFINIÇÃO DO TRABALHO E TABELA DE USO E DEFINIÇÕES DO SLIDE 13 DA AULA 8 - la ta faltando o mod_a na tabela de definições)
+
+H: PROG1
+H: 12
+H: 010010101010
+TD: L1 10 VAL 11
+TU: Y 1 Y 5 Y7 MOD_B 9
+T: 12 14 15 02 5 15 12 1 6 9 4 2
+
+2 - pegar as tabelas de definição e uso de cada um dos programas (de 1 a 3 programas) e criar uma lista da tabela de simbolos como mostrado no slide 13 da aula 8. A lista pode ter a estrutura de:
+	 *ponteiro para o prox elemento
+	 *nome do parametro, simbolo(char)
+	 *valor(int)
+	 *externo(boolean ou int)
+
+3 - pegar fator de correção entre programa 1 e 2 e entre 2 e 3 e SOMAR ao fazer as devidas correções nas tabelas de uso de cada
+
+4 - pegar o valor existente na tabela de simbolo e, com apoio da tabela de uso, SOMAR os valores nas posições indicadas pela TU criando um novo arquivo
+
+5 - criar novo arquivo unico juntando tudo. esse arquivo n tem TD nem TU, só os H (deve ser recalculado) e o T (de todos os programas ligados)
