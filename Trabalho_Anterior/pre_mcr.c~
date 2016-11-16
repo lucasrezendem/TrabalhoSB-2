@@ -258,7 +258,7 @@ void checaAntes (char *nome){ /*checa se uma macro não foi chamada antes de ser
 					}
 					c='\0';
 					fscanf(fp,"%d", &linha);
-					/*printf("\nERRO >> erro semantico detectado na linha: %d (Você não pode chamar uma macro antes de definir a mesma)", linha);*/
+					printf("\nERRO >> erro semantico detectado na linha: %d (Você não pode chamar uma macro antes de definir a mesma)", linha);
 					
 				}
 				
@@ -489,7 +489,7 @@ int checaMacro(char *func, char *nome, char *nome2, int pos, int pospre){ /*chec
 
 		}while (!feof(fp_pre) || c!=EOF);
 		if(find==0)
-			/*printf("ERRO >> erro semântico detectado. (Não foi definida uma macro com esse nome)");*/
+			printf("ERRO >> erro semântico detectado. (Não foi definida uma macro com esse nome)");
 		c = '\0';
 
 		val = ftell(fp_mcr);
