@@ -3,6 +3,9 @@
 
 #define NO_SPACE 0
 #define MULTIPLE_CHUNKS -1
+
+#include <stdint.h>
+#include "parser.h"
 /*Funcoes responsaveis pela alocação do programa principal*/
 
 /*Registros das informacoes de memoria*/
@@ -22,6 +25,6 @@ void initMem(MemTipo *mem, int chunks, int *tamanhos, int *locais);
 int verificaEspaco(MemTipo *mem, int tamProg);
 
 /*Realoca de acordo com o resultado da verificacao*/
-void realoca(MemTipo *mem, int16_t *codigo, int modo);
+void realoca(MemTipo *mem, ProgInfo *info, int16_t *codigo, int modo);
 
 #endif

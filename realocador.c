@@ -23,6 +23,20 @@ int verificaEspaco(MemTipo *mem, int tamProg) {
     return MULTIPLE_CHUNKS;
 }
 
-void realoca(MemTipo *mem, int16_t *codigo, int modo) {
-    /*TODO*/
+void realoca(MemTipo *mem, ProgInfo *info, int16_t *codigo, int modo) {
+    int currChunk = 0;
+    int i, j;
+    int tam = atoi(info->tamanho);
+
+    if (modo > 0) currChunk = modo - 1;
+    
+    for(i = 0, j = 0; i < tam; i++, j++) {
+        if(j == mem->tamanhos[currChunk]) {
+            j = 0;
+            currChunk++;
+        }
+        if(info->realocacao[i] == '1') {
+            codigo[i] += mem->locais[currChunk] + j;
+        }
+    }
 }
