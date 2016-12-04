@@ -13,7 +13,7 @@
 #define CONSTANTE 268 /*valores pra nao entrar em conflito com nada*/
 #define VARIAVEL 269
 #define LABEL 270
-#define EXTERN 270 
+#define EXTERN 271 
 #define NUM_TOKENS 10
 
 static const Instrucao instrucoes[NUM_INSTRUCOES] = {
@@ -391,9 +391,18 @@ int calculaEspaco( char tokens[10][50],  char *numLinha, int instPos, int i) {
   if (secText == 1 && strcasecmp(tokens[0], "SECTION") != 0 && i != 0 && tokens[instPos][0] != '(') {
     instrucao = procuraInstrucaoNom(tokens[instPos]); /*verifica qual eh a instrucao*/
     if (instrucao == NAO_ENCONTRADO){
-      erroCompilacao = 1;
-      if (procuraDiretiva(tokens[instPos], expParams) != NAO_ENCONTRADO) printf("\nERRO >> erro semântico detectado na linha: %s (Diretiva '%s' na secao de texto)\n", numLinha, tokens[instPos]);
-      else printf("\nERRO >> erro semântico detectado na linha: %s (Instrucao desconhecida: '%s')\n", numLinha, tokens[instPos]);
+      diretiva = procuraDiretiva(tokens[instPos], expParams);
+      if (diretiva == 2 || diretiva == 3 || diretiva == 4){ /*se for space com arg, space sem arg ou const, da erro*/
+        erroCompilacao = 1;
+        printf("\nERRO >> erro semântico detectado na linha: %s (Diretiva '%s' na secao de texto)\n", numLinha, tokens[instPos]);
+      }
+      else if (diretiva != NAO_ENCONTRADO){
+        return 0; /*se encontrar uma diretiva diferente das acima mencionadas, retorna espaco = 0*/
+      } 
+      else{ /*se nao for nenhuma diretiva dessas acima, entao considera-se uma instrucao desconhecida*/
+        erroCompilacao = 1;
+        printf("\nERRO >> erro semântico detectado na linha: %s (Instrucao desconhecida: '%s')\n", numLinha, tokens[instPos]); 
+      }
       return 0;
     } else {
       espaco = instrucoes[instrucao].operandos + 1;
@@ -462,7 +471,6 @@ void primeiraPassagem(FILE *fp, int NumArgs){
     /*verifica se a secao eh valida*/
     validaSecao(tokens, numLinha);
 
-
     espaco = calculaEspaco(tokens, numLinha, instPos, i);
 
     /*Se o programa receber mais de um ASM, verifica BEGIN e END*/ 
@@ -502,7 +510,7 @@ void primeiraPassagem(FILE *fp, int NumArgs){
         else simb.posicao = simPos; 
         simb.valor = valor;
         simb.tam = espaco;
-        adicionaSimbolo(simb);  
+        adicionaSimbolo(simb);
         if (procuraDefinicaoTemp(rotulo) != NULL) adicionaDefinicao(simb); /*se tiver sido declarado como public antes, entao coloca na tabela de definicoes*/ 
       }
       else {
@@ -610,19 +618,21 @@ void segundaPassagem(FILE *fp){
 
     if (secText == 1 && strcasecmp(tokens[0], "SECTION") != 0 && i != 0) { /*Se for uma instrucao...*/
       instrucao = procuraInstrucao(tokens[instPos], expParams); /*verifica se a instrucao eh valida*/
-      if (instrucao < 0 ){ /*se o numero de operandos for invalido...*/
-        erroCompilacao = 1;
+      if (instrucao < 0){ /*se o numero de operandos for invalido...*/
         switch (instrucao) {
           case EXCESSO_OPERANDOS:
+            erroCompilacao = 1;
             printf("\nERRO >> erro sintático detectado na linha: %s (Instrucao '%s' com excesso de operandos)\n", numLinha, tokens[instPos]);
             break;
           case FALTA_OPERANDOS:
+            erroCompilacao = 1;
             printf("\nERRO >> erro sintático detectado na linha: %s (Instrucao '%s' com operandos insuficientes)\n", numLinha, tokens[instPos]);
             break;
           case NAO_ENCONTRADO:
             /*Nao faz nada, pois o erro ja foi indicado na primeira passagem*/
             break;
           default:
+            erroCompilacao = 1;
             printf("ERRO DE EXECUCAO! Indice da intrucao(%d), linha(%s).\n", instrucao, numLinha);
             break;
         }
