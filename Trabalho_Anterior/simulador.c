@@ -25,8 +25,8 @@ int preenche_vetor_mem(FILE *fp, int16_t *mem, int tamanho){
 		mem[i] = int_aux;
 		/*printf("[%d]: %d  %d \n", i, mem[i], int_aux);*/
 		if(int_aux > 32767 || int_aux < -32768){
-			printf("ERRO: VALOR COM MAIS DE 16 BITS ENCONTRADO!\n");
-			return -1;
+			/*printf("ERRO: VALOR COM MAIS DE 16 BITS ENCONTRADO >> %d!\n", int_aux);
+			return -1;*/
 		}
 	}
 	return 0;
@@ -60,8 +60,8 @@ void run(int16_t *mem, int tamanho){
 
 			case 4: /*DIV*/
 				if(mem[mem[pc+1]] == 0){
-					printf("(%d)\tERRO: TENTATIVA DE DIVISAO POR ZERO! FIM DA EXECUCAO.\n", pc);
-					return;
+					/*printf("(%d)\tERRO: TENTATIVA DE DIVISAO POR ZERO! FIM DA EXECUCAO.\n", pc);
+					return;*/
 				}
 				acc /= mem[mem[pc+1]];
 				printf("(%d)\tACC <- ACC / (mem[%d] = %d)\n", pc, mem[pc+1], mem[mem[pc+1]]);
@@ -122,7 +122,7 @@ void run(int16_t *mem, int tamanho){
 				printf("INPUT = %d\n", aux);
 
 				while(aux > 32767 || aux < -32768){
-					printf("ERRO: O VALOR PRECISA TER NO MAXIMO 16 BITS!\n");
+					/*printf("ERRO: O VALOR PRECISA TER NO MAXIMO 16 BITS!\n");*/
 					printf("(%d)\tINPUT: mem[%d] <- ", pc, mem[pc+1]);
 					scanf("%d", &aux);
 					getchar();
@@ -141,22 +141,22 @@ void run(int16_t *mem, int tamanho){
 				return;
 
 			default:
-				printf("(%d)\tERRO: INSTRUCAO NAO ENCONTRADA!\n", pc);
+				/*printf("(%d)\tERRO: INSTRUCAO NAO ENCONTRADA!\n", pc);*/
 				pc += 1;
 				return;
 		}
 	}
 
-	printf("(%d)\tERRO: PROGRAMA TERMINOU SEM A INSTRUCAO STOP!\n", pc);
+	/*printf("(%d)\tERRO: PROGRAMA TERMINOU SEM A INSTRUCAO STOP!\n", pc);*/
 }
 
 int main(int argc, char *argv[]){
 	if(argc > 2){
-		printf("ERRO: O SIMULADOR ESPERA RECEBER SOMENTE O NOME DO ARQUIVO A SER SIMULADO COMO ARGUMENTO!\n");
-		return -1;
+		/*printf("ERRO: O SIMULADOR ESPERA RECEBER SOMENTE O NOME DO ARQUIVO A SER SIMULADO COMO ARGUMENTO!\n");
+		return -1;*/
 	} else if(argc == 1){
-		printf("ERRO: O SIMULADOR ESPERA RECEBER O NOME DO ARQUIVO DO PROGRAMA A SER SIMULADO COMO ARGUMENTO!\n");
-		return -1;
+		/*printf("ERRO: O SIMULADOR ESPERA RECEBER O NOME DO ARQUIVO DO PROGRAMA A SER SIMULADO COMO ARGUMENTO!\n");
+		return -1;*/
 	}
 
 	FILE *fp;

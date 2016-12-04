@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-typedef struct listMcr { /*estrutura de dados para armazenar informações de nome das macros*/
+typedef struct listMcr {
 	char orig[50], eq[50];
 	struct listMcr *next;
 
@@ -445,8 +445,8 @@ int checaMacro(char *func, char *nome, char *nome2, int pos, int pospre){ /*chec
 					}
 				}
 				if(parDef!=0)
-					printf("ERRO>> Erro semantico detectado na linha %s), quantidade errada de parametros",aux);
-				c='\0';
+					/*printf("ERRO>> Erro semantico detectado na linha %s), quantidade errada de parametros",aux);
+				*/c='\0';
 				/* até aqui os parametros da macro chamada e da definida foram pegos*/
 				c = '\0';
 				fseek(fp_pre,posM,SEEK_SET);
@@ -583,8 +583,8 @@ void leAsm (char *nome,char *nomeExt){ /*recebe .asm para gerar .pre*/
 					}
 					c='\0';
 					fscanf(fp,"%d", &linha);
-					printf("\nERRO >> erro semantico detectado na linha: %d (Voce ja definiu algo com esse nome)", linha);
-				}
+					/*printf("\nERRO >> erro semantico detectado na linha: %d (Voce ja definiu algo com esse nome)", linha);
+				*/}
 				if(((label[0]>47 && label[0]<58)||(palavra[0]>47 && palavra[0]<58) || (strcmp(palavra,"equ")!=0))){
 					c='\0';
 					while(c!='\n'){
@@ -597,8 +597,8 @@ void leAsm (char *nome,char *nomeExt){ /*recebe .asm para gerar .pre*/
 					}
 					c='\0';
 					fscanf(fp,"%d", &linha);
-					printf("\nERRO >> erro sintático detectado na linha: %d (Erro na definição da diretiva EQU)", linha);
-					strcpy(label,"\0");
+					/*printf("\nERRO >> erro sintático detectado na linha: %d (Erro na definição da diretiva EQU)", linha);
+					*/strcpy(label,"\0");
 					valor=0;
 
 				}
@@ -632,8 +632,8 @@ void leAsm (char *nome,char *nomeExt){ /*recebe .asm para gerar .pre*/
 					}
 					c='\0';
 					fscanf(fp,"%d", &linha);
-					printf("\nERRO >> erro sintático detectado na linha: %d (Erro na definição da diretiva IF)", linha);
-				}
+					/*printf("\nERRO >> erro sintático detectado na linha: %d (Erro na definição da diretiva IF)", linha);
+				*/}
 			
 				resposta = checaIf (equl, palavra);
 				while (c!='\n'&& c!=EOF){
@@ -659,8 +659,8 @@ void leAsm (char *nome,char *nomeExt){ /*recebe .asm para gerar .pre*/
 					}
 					c='\0';
 					fscanf(fp,"%d", &linha);
-					printf("\nERRO >> erro semantico detectado na linha: %d (Você não definiu nenhum parâmetro com esse nome)", linha);
-				}
+					/*printf("\nERRO >> erro semantico detectado na linha: %d (Você não definiu nenhum parâmetro com esse nome)", linha);
+				*/}
 			strcpy(palavra,"\0");
 			}
 			for(a = 0; palavra[a]; a++){
@@ -810,8 +810,8 @@ void secaoDir (char *nome){
 			}
 			c='\0';
 			fscanf(fp,"%d", &linha);
-			printf("\nERRO >> erro semantico detectado na linha: %d (Diretiva definida na sessão errada)", linha);
-		}
+			/*printf("\nERRO >> erro semantico detectado na linha: %d (Diretiva definida na sessão errada)", linha);
+		*/}
 		if(strcmp(palavra,"if")==0 && (text!=1)){
 
 			while(c!='('){
@@ -819,8 +819,8 @@ void secaoDir (char *nome){
 			}
 			c='\0';
 			fscanf(fp,"%d", &linha);
-			printf("\nERRO >> erro semantico detectado na linha: %d (Diretiva definida na sessão errada)", linha);
-		}
+			/*printf("\nERRO >> erro semantico detectado na linha: %d (Diretiva definida na sessão errada)", linha);
+		*/}
 		strcmp(palavra,"");
 
 	}
