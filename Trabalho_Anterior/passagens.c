@@ -6,13 +6,14 @@
 #include "passagens.h"
 
 #define NUM_INSTRUCOES 14
-#define NUM_DIRETIVAS 5
+#define NUM_DIRETIVAS 9 
 #define NAO_ENCONTRADO -1
 #define EXCESSO_OPERANDOS -2
 #define FALTA_OPERANDOS -3
 #define CONSTANTE 268 /*valores pra nao entrar em conflito com nada*/
 #define VARIAVEL 269
 #define LABEL 270
+#define EXTERN 270 
 #define NUM_TOKENS 10
 
 static const Instrucao instrucoes[NUM_INSTRUCOES] = {
@@ -37,22 +38,34 @@ static const Diretiva diretivas[NUM_DIRETIVAS] = {
                                       {"EQU", 1, 0},
                                       {"SPACE", 0, 1},
                                       {"SPACE", 1, 1},
-                                      {"CONST", 1, 1}
+                                      {"CONST", 1, 1}, 
+                                      {"BEGIN", 0, 0}, 
+                                      {"END", 0, 0}, 
+                                      {"PUBLIC", 1, 0}, /*embora os simbolos nao tenham o tipo explicitamente PUBLIC nesse programa, ter esse tipo nessa lista vai facilitar na segunda passagem*/ 
+                                      {"EXTERN", 0, 0} 
                                     };
 
-static ListSimbolo *ls = NULL;
+static ListSimbolo *lsimbolos = NULL; 
+static ListSimbolo *ldefinicoes = NULL; 
+static ListDefinicoesTemp *ldefinicoesTemp = NULL; 
+static ListTabUso *luso = NULL; 
+static ListProgramaFinal *lprogfinal = NULL; 
+static ListMapaBits *lmapabits = NULL;
 static int contPos = 0;
+static int tamanhoPrograma = 0; 
 static int secText = 0;
 static int quantStops = 0; /*conta quantas instrucoes "Stop" tem no programa*/
 static int erroCompilacao = 0;/*flag que define se a tabela de simbolos deve ser construida*/
 static int inMacro = 0;
+static int achouBegin = 0; 
+static int achouEnd = 0; 
 
 void adicionaSimbolo(Simbolo sim) {
-  ListSimbolo *aux = ls;
-  if (ls == NULL) {
-    ls = malloc(sizeof(ListSimbolo));
-    ls->simbolo = sim;
-    ls->prox = NULL;
+  ListSimbolo *aux = lsimbolos; 
+  if (lsimbolos == NULL) { 
+    lsimbolos = malloc(sizeof(ListSimbolo)); 
+    lsimbolos->simbolo = sim; 
+    lsimbolos->prox = NULL; 
   } else {
     while (aux->prox != NULL) aux = aux->prox;
     aux->prox = malloc(sizeof(ListSimbolo));
@@ -61,36 +74,145 @@ void adicionaSimbolo(Simbolo sim) {
   }
 }
 
+void adicionaDefinicao(Simbolo sim) { 
+  ListSimbolo *aux = ldefinicoes; 
+  if (ldefinicoes == NULL) { 
+    ldefinicoes = malloc(sizeof(ListSimbolo)); 
+    ldefinicoes->simbolo = sim; 
+    ldefinicoes->prox = NULL; 
+  } else { 
+    while (aux->prox != NULL) aux = aux->prox; 
+    aux->prox = malloc(sizeof(ListSimbolo)); 
+    aux->prox->simbolo = sim; 
+    aux->prox->prox = NULL; 
+  } 
+} 
+ 
+void adicionaDefinicaoTemp(char rotulo[]) { 
+  ListDefinicoesTemp *aux = ldefinicoesTemp; 
+  if (ldefinicoesTemp == NULL) { 
+    ldefinicoesTemp = malloc(sizeof(ListDefinicoesTemp)); 
+    strcpy(ldefinicoesTemp->nomeSimboloPublic, rotulo); 
+    ldefinicoesTemp->prox = NULL; 
+  } else { 
+    while (aux->prox != NULL) aux = aux->prox; 
+    aux->prox = malloc(sizeof(ListDefinicoesTemp)); 
+    strcpy(aux->prox->nomeSimboloPublic, rotulo); 
+    aux->prox->prox = NULL; 
+  } 
+} 
+ 
+void adicionaUso(char rotulo[], int posicao) { 
+  ListTabUso *aux = luso; 
+  if (luso == NULL) { 
+    luso = malloc(sizeof(ListTabUso)); 
+    strcpy(luso->nomeSimboloExtern, rotulo); 
+    luso->posicaoDoUso = posicao; 
+    luso->prox = NULL; 
+  } else { 
+    while (aux->prox != NULL) aux = aux->prox; 
+    aux->prox = malloc(sizeof(ListTabUso)); 
+    strcpy(aux->prox->nomeSimboloExtern, rotulo); 
+    aux->prox->posicaoDoUso = posicao; 
+    aux->prox->prox = NULL; 
+  } 
+} 
+ 
+void adicionaLinhaProgFinal(char nova_linha[]) { 
+  ListProgramaFinal *aux = lprogfinal; 
+  if (lprogfinal == NULL) { 
+    lprogfinal = malloc(sizeof(ListProgramaFinal)); 
+    strcpy(lprogfinal->linha, nova_linha); 
+    lprogfinal->prox = NULL; 
+  } else { 
+    while (aux->prox != NULL) aux = aux->prox; 
+    aux->prox = malloc(sizeof(ListProgramaFinal)); 
+    strcpy(aux->prox->linha, nova_linha); 
+    aux->prox->prox = NULL; 
+  } 
+} 
+ 
+void adicionaLinhaDeBits(char nova_linha_de_bits[]) { 
+  ListMapaBits *aux = lmapabits; 
+  if (lmapabits == NULL) { 
+    lmapabits = malloc(sizeof(ListMapaBits)); 
+    strcpy(lmapabits->linha_de_bits, nova_linha_de_bits); 
+    lmapabits->prox = NULL; 
+  } else { 
+    while (aux->prox != NULL) aux = aux->prox; 
+    aux->prox = malloc(sizeof(ListMapaBits)); 
+    strcpy(aux->prox->linha_de_bits, nova_linha_de_bits); 
+    aux->prox->prox = NULL; 
+  } 
+} 
+
 ListSimbolo *procuraSimbolo( char *nomeSim) {
-  ListSimbolo *aux = ls;
+  ListSimbolo *aux = lsimbolos;
   while(aux != NULL && strcasecmp(nomeSim, aux->simbolo.nome) != 0) {
     aux = aux->prox;
   }
   return aux;
 }
 
+ListDefinicoesTemp *procuraDefinicaoTemp(char rotulo[]) { 
+  ListDefinicoesTemp *aux = ldefinicoesTemp; 
+  while(aux != NULL && strcasecmp(rotulo, aux->nomeSimboloPublic) != 0) { 
+    aux = aux->prox; 
+  } 
+  return aux; 
+} 
+
 void removeSimbolo(Simbolo sim) {
   ListSimbolo *aux = procuraSimbolo(sim.nome);
-  ListSimbolo *aux2 = ls;
+  ListSimbolo *aux2 = lsimbolos;
   if (aux == NULL) return;
   while (aux2->prox != aux) aux2 = aux2->prox;
   aux2->prox = aux->prox;
   free(aux);
 }
 
-void esvaziaTabela() {
+void esvaziaTabelas() {
   ListSimbolo *aux;
-  while (ls != NULL) {
-    aux = ls;
-    ls = ls->prox;
+  ListTabUso *aux1; 
+  ListDefinicoesTemp *aux2; 
+  ListProgramaFinal *aux3; 
+  ListMapaBits *aux4; 
+  while (lsimbolos != NULL) { 
+    aux = lsimbolos; 
+    lsimbolos = lsimbolos->prox; 
+    free(aux); 
+  } 
+  while (ldefinicoes != NULL) { 
+    aux = ldefinicoes; 
+    ldefinicoes = ldefinicoes->prox; 
     free(aux);
   }
+  while (luso != NULL) { 
+    aux1 = luso; 
+    luso = luso->prox; 
+    free(aux1); 
+  } 
+  while (ldefinicoesTemp != NULL) { 
+    aux2 = ldefinicoesTemp; 
+    ldefinicoesTemp = ldefinicoesTemp->prox; 
+    free(aux2); 
+  } 
+  while (lprogfinal != NULL) { 
+    aux3 = lprogfinal; 
+    lprogfinal = lprogfinal->prox; 
+    free(aux3); 
+  } 
+  while (lmapabits != NULL) { 
+    aux4 = lmapabits; 
+    lmapabits = lmapabits->prox; 
+    free(aux4); 
+  } 
 }
 
 /*imprime a tabela de simbolos*/
 void imprimeSimbolos() {
-  ListSimbolo *aux = ls;
-  if (ls == NULL) printf("Lista Vazia.\n");
+  ListSimbolo *aux = lsimbolos; 
+  if (lsimbolos == NULL) printf("Lista Vazia.\n"); 
   while (aux != NULL) {
     printf("%s: %d -> ", aux->simbolo.nome, aux->simbolo.posicao);
     switch (aux->simbolo.tipo) {
@@ -318,7 +440,7 @@ int calculaEspaco( char tokens[10][50],  char *numLinha, int instPos, int i) {
   return espaco;
 }
 
-void primeiraPassagem(FILE *fp){
+void primeiraPassagem(FILE *fp, int NumArgs){ 
 	int i;
 	char rotulo[50];
   char tokens[10][50], numLinha[10];
@@ -343,6 +465,18 @@ void primeiraPassagem(FILE *fp){
 
     espaco = calculaEspaco(tokens, numLinha, instPos, i);
 
+    /*Se o programa receber mais de um ASM, verifica BEGIN e END*/ 
+    if(NumArgs > 1){ 
+      if(strcasecmp(tokens[0], "BEGIN") == 0 || strcasecmp(tokens[1], "BEGIN") == 0) achouBegin = 1;  
+      else if(strcasecmp(tokens[0], "END") == 0 || strcasecmp(tokens[1], "END") == 0){ 
+        if(achouBegin == 1)  
+          achouEnd = 1; 
+        else{ 
+          erroCompilacao = 1; 
+          printf("\nERRO >> erro semântico detectado na linha: %s (END veio antes do BEGIN)\n", numLinha); 
+        } 
+      } 
+    } 
 
     /*Construcao da tabela de simbolos*/
     if (strchr(tokens[0], ':') != NULL)  {
@@ -355,23 +489,33 @@ void primeiraPassagem(FILE *fp){
         simTipo = CONSTANTE;
         valor = atoi(tokens[instPos + 1]);
       }
-      if (secText == 1) simTipo = LABEL; /*se estiver na secao de texto eh um label*/
+      if (secText == 1 && strcasecmp(tokens[1], "EXTERN") == 0) simTipo = EXTERN; /*se estiver na secao de texto e for chamado por extern, eh extern kkj*/ 
+      else if (secText == 1) simTipo = LABEL; /*se estiver na secao de texto eh um label*/ 
+      else if (strcasecmp(tokens[1], "BEGIN") == 0 || strcasecmp(tokens[1], "END") == 0) simTipo = LABEL; /*se n estiver na secao de texto, mas se for BEGIN ou END, eh um label*/ 
       else if (simTipo != CONSTANTE) simTipo = VARIAVEL;/*caso contrario eh variavel*/
 
       /*verifica se o simbolo ja existe antes de adicionar à tabela*/
       if (procuraSimbolo(rotulo) == NULL) {
         strcpy(simb.nome, rotulo);
         simb.tipo = simTipo;
-        simb.posicao = simPos;
+        if(simTipo == EXTERN) simb.posicao = 0; 
+        else simb.posicao = simPos; 
         simb.valor = valor;
         simb.tam = espaco;
-        adicionaSimbolo(simb);
+        adicionaSimbolo(simb);  
+        if (procuraDefinicaoTemp(rotulo) != NULL) adicionaDefinicao(simb); /*se tiver sido declarado como public antes, entao coloca na tabela de definicoes*/ 
       }
       else {
         erroCompilacao = 1;
         printf("\nERRO >> erro semântico detectado na linha: %s ('%s' declarado pela segunda vez)\n", numLinha, rotulo);
       }
     }
+    else if (strcasecmp(tokens[0], "PUBLIC") == 0){ /*se for declarado como public, entao coloca so o nome na tab de definicoes temporaria*/ 
+      adicionaDefinicaoTemp(tokens[1]); 
+    } 
+    else if (strcasecmp(tokens[1], "PUBLIC") == 0){ /*se for declarado como public, entao coloca so o nome na tab de definicoes temporaria*/ 
+      adicionaDefinicaoTemp(tokens[2]); 
+    } 
 
     /*avanca o contador de posicoes*/
     contPos += espaco;
@@ -381,6 +525,21 @@ void primeiraPassagem(FILE *fp){
     printf("\nERRO >> erro semântico detectado na linha: %s (Secao de dados ausente).\n", numLinha);
   }
 }
+
+void verificaBeginEnd(){ 
+  if(achouBegin == 0){ 
+    erroCompilacao = 1; 
+    printf("\nERRO >> erro semântico detectado (Nao foi encontrado nenhum BEGIN no programa)\n"); 
+  } 
+ 
+  if(achouEnd == 0){ 
+    erroCompilacao = 1; 
+    printf("\nERRO >> erro semântico detectado (Nao foi encontrado nenhum END no programa)\n"); 
+  } 
+ 
+  achouBegin = 0; 
+  achouEnd = 0; 
+} 
 
 /*Recebe um token que tem a possibilidade de ter um '+', e o separa entre o nome do simbolo e o offset */
 char* separaTokenDoOffset(char *token, int *offset){
@@ -416,11 +575,11 @@ void verificaStops(){
   }
 }
 
-void segundaPassagem(FILE *fp, FILE *fpfinal){
+void segundaPassagem(FILE *fp){ 
   int i, j, temLinha = 0; /*i eh o maior indice do vetor de tokens da linha dada*/
   char *rotulo;
-  char tokens[10][50], numLinha[10];
-  int instrucao, diretiva, expParams, instPos = 0, offset = 0, offset2 = 0, operando = 0; /*o operando so eh usado no space e no const*/
+  char tokens[10][50], numLinha[10], nova_linha[50]; 
+  int instrucao, diretiva, expParams, espaco = 0, instPos = 0, offset = 0, offset2 = 0, operando = 0; /*o operando so eh usado no space e no const*/ 
   ListSimbolo *Lsimb1 = NULL, *Lsimb2 = NULL;
 
   i = separaTokens(fp, tokens);
@@ -434,6 +593,8 @@ void segundaPassagem(FILE *fp, FILE *fpfinal){
 
     /*checa se a secao atual eh a de texto ou a de dados, modificando a flag secText*/
     verificaSecaoAtual(tokens);
+
+    espaco = calculaEspaco(tokens, numLinha, instPos, i); 
 
     /*Calcula a quantidade de operandos*/
     if (tokens[i][0] == '(') {
@@ -472,15 +633,20 @@ void segundaPassagem(FILE *fp, FILE *fpfinal){
           Lsimb1 = procuraSimbolo(rotulo);
           if(Lsimb1 != NULL){
             verificaEspacoAlocado(Lsimb1->simbolo, offset, numLinha);
-            if(Lsimb1->simbolo.tipo == VARIAVEL){
-              fprintf(fpfinal, "%s %d ", instrucoes[instrucao].opcode, Lsimb1->simbolo.posicao + offset);
+            if(Lsimb1->simbolo.tipo == VARIAVEL || Lsimb1->simbolo.tipo == EXTERN){ 
+              sprintf(nova_linha, "%s %d ", instrucoes[instrucao].opcode, Lsimb1->simbolo.posicao + offset); 
+              adicionaLinhaProgFinal(nova_linha); 
+              adicionaLinhaDeBits("01"); 
+              if (Lsimb1->simbolo.tipo == EXTERN) adicionaUso(Lsimb1->simbolo.nome, contPos + 1);  
             }
             else if(Lsimb1->simbolo.tipo == CONSTANTE){
               if(instrucao == 3 && Lsimb1->simbolo.valor == 0){ /*verifica se o operando eh uma constante com valor zero*/
                 erroCompilacao = 1;
                 printf("\nERRO >> erro semântico detectado na linha: %s (Tentativa de divisao por zero!)\n", numLinha);
               }
-              fprintf(fpfinal, "%s %d ", instrucoes[instrucao].opcode, Lsimb1->simbolo.posicao);
+              sprintf(nova_linha, "%s %d ", instrucoes[instrucao].opcode, Lsimb1->simbolo.posicao); 
+              adicionaLinhaProgFinal(nova_linha); 
+              adicionaLinhaDeBits("01"); 
             }
             else{
                   erroCompilacao = 1;
@@ -495,8 +661,11 @@ void segundaPassagem(FILE *fp, FILE *fpfinal){
         else if(instrucao >= 4 && instrucao <= 7){ /*JMP, JMPN, JMPP, JMPZ*/
           Lsimb1 = procuraSimbolo(tokens[instPos+1]);
           if(Lsimb1 != NULL){
-            if(Lsimb1->simbolo.tipo == LABEL){
-              fprintf(fpfinal, "%s %d ", instrucoes[instrucao].opcode, Lsimb1->simbolo.posicao);
+            if(Lsimb1->simbolo.tipo == LABEL || Lsimb1->simbolo.tipo == EXTERN){ 
+              sprintf(nova_linha, "%s %d ", instrucoes[instrucao].opcode, Lsimb1->simbolo.posicao); 
+              adicionaLinhaProgFinal(nova_linha); 
+              adicionaLinhaDeBits("01"); 
+              if (Lsimb1->simbolo.tipo == EXTERN) adicionaUso(Lsimb1->simbolo.nome, contPos + 1); 
             }
             else{
               erroCompilacao = 1;
@@ -516,8 +685,13 @@ void segundaPassagem(FILE *fp, FILE *fpfinal){
           if(Lsimb1 != NULL && Lsimb2 != NULL){
             verificaEspacoAlocado(Lsimb1->simbolo, offset, numLinha);
             verificaEspacoAlocado(Lsimb2->simbolo, offset2, numLinha);
-            if((Lsimb1->simbolo.tipo == VARIAVEL || Lsimb1->simbolo.tipo == CONSTANTE) && Lsimb2->simbolo.tipo == VARIAVEL){
-              fprintf(fpfinal, "%s %d %d ", instrucoes[instrucao].opcode, Lsimb1->simbolo.posicao + offset, Lsimb2->simbolo.posicao + offset2);
+            if((Lsimb1->simbolo.tipo == VARIAVEL || Lsimb1->simbolo.tipo == CONSTANTE || Lsimb1->simbolo.tipo == EXTERN) &&  
+              (Lsimb2->simbolo.tipo == VARIAVEL || Lsimb2->simbolo.tipo == EXTERN)){ 
+              sprintf(nova_linha, "%s %d %d ", instrucoes[instrucao].opcode, Lsimb1->simbolo.posicao + offset, Lsimb2->simbolo.posicao + offset2); 
+              adicionaLinhaProgFinal(nova_linha); 
+              adicionaLinhaDeBits("011"); 
+              if (Lsimb1->simbolo.tipo == EXTERN) adicionaUso(Lsimb1->simbolo.nome, contPos + 1); 
+              if (Lsimb2->simbolo.tipo == EXTERN) adicionaUso(Lsimb1->simbolo.nome, contPos + 2); 
             }
             else{
               erroCompilacao = 1;
@@ -534,8 +708,11 @@ void segundaPassagem(FILE *fp, FILE *fpfinal){
           Lsimb1 = procuraSimbolo(rotulo);
           if(Lsimb1 != NULL){
             verificaEspacoAlocado(Lsimb1->simbolo, offset, numLinha);
-            if(Lsimb1->simbolo.tipo == VARIAVEL){
-              fprintf(fpfinal, "%s %d ", instrucoes[instrucao].opcode, Lsimb1->simbolo.posicao + offset);
+             if(Lsimb1->simbolo.tipo == VARIAVEL || Lsimb1->simbolo.tipo == EXTERN){ 
+              sprintf(nova_linha, "%s %d ", instrucoes[instrucao].opcode, Lsimb1->simbolo.posicao + offset); 
+              adicionaLinhaProgFinal(nova_linha); 
+              adicionaLinhaDeBits("01"); 
+              if (Lsimb1->simbolo.tipo == EXTERN) adicionaUso(Lsimb1->simbolo.nome, contPos + 1); 
             }
             else if(Lsimb1->simbolo.tipo == CONSTANTE){
               erroCompilacao = 1;
@@ -553,7 +730,9 @@ void segundaPassagem(FILE *fp, FILE *fpfinal){
         }
         else if(instrucao == 13){ /*STOP*/
           quantStops++;
-          fprintf(fpfinal, "%s ", instrucoes[instrucao].opcode);
+          sprintf(nova_linha, "%s ", instrucoes[instrucao].opcode); 
+          adicionaLinhaProgFinal(nova_linha); 
+          adicionaLinhaDeBits("0"); 
         }
       }
     }
@@ -561,7 +740,9 @@ void segundaPassagem(FILE *fp, FILE *fpfinal){
       diretiva = procuraDiretiva(tokens[instPos], expParams);
       switch (diretiva) {
         case 2: /*SPACE sem argumentos*/
-          fprintf(fpfinal, "0 ");
+          sprintf(nova_linha, "0 "); 
+          adicionaLinhaProgFinal(nova_linha); 
+          adicionaLinhaDeBits("0"); 
           break;
         case 3: /*SPACE com argumentos*/
           if((tokens[instPos+1][0]=='0' && (tokens[instPos+1][1]=='x' || tokens[instPos+1][1]=='X')) ||
@@ -569,7 +750,11 @@ void segundaPassagem(FILE *fp, FILE *fpfinal){
             sscanf(tokens[instPos+1], "%x", &operando);
           else sscanf(tokens[instPos+1], "%d", &operando); /*senao, le como decimal mesmo*/
           if(operando > 0){
-            for(j=0; j<operando; j++) fprintf(fpfinal, "0 ");
+            for(j=0; j<operando; j++){ 
+              sprintf(nova_linha, "0 "); 
+              adicionaLinhaProgFinal(nova_linha); 
+              adicionaLinhaDeBits("0"); 
+            } 
           }
           else {
             erroCompilacao = 1;
@@ -581,15 +766,90 @@ void segundaPassagem(FILE *fp, FILE *fpfinal){
             (tokens[instPos+1][1]=='0' && (tokens[instPos+1][2]=='x' || tokens[instPos+1][2]=='X'))) /*Se os primeiros caracteres forem 0x ou 0X ou -0x ou -0X, entao le como hexa*/
             sscanf(tokens[instPos+1], "%x", &operando);
           else sscanf(tokens[instPos+1], "%d", &operando); /*senao, le como decimal mesmo*/
-          fprintf(fpfinal, "%d ", operando);
+          sprintf(nova_linha, "%d ", operando); 
+          adicionaLinhaProgFinal(nova_linha); 
+          adicionaLinhaDeBits("0"); 
           break;
       }
-    }
+    } 
+ 
+    /*avanca o contador de posicoes*/ 
+    contPos += espaco; 
   }
 }
 
-void duasPassagens(char *nomeArquivoIN, char *nomeArquivoOUT){
+void monta_arquivo_final(char *nomeArquivoIN, FILE *fpOUT){ 
+  char *nomeArquivo; 
+  ListSimbolo *auxDefinicoes = ldefinicoes; 
+  ListTabUso *auxUso = luso; 
+  ListProgramaFinal *auxProgFinal = lprogfinal; 
+  ListMapaBits *auxMapaBits = lmapabits; 
+ 
+  /*transforma "arquivo".asm em simplesmente "arquivo"*/ 
+  nomeArquivo = strtok(nomeArquivoIN, "."); 
+  if(nomeArquivo == NULL){ 
+    printf("ERRO! Nome do arquivo nao pode ser encontrado!\n"); 
+    exit(1); 
+  }  
+ 
+  fprintf(fpOUT, "H: %s\n", nomeArquivo); 
+  fprintf(fpOUT, "H: %d\n", tamanhoPrograma); 
+  fprintf(fpOUT, "H: "); 
+ 
+  /*imprime o mapa de bits*/ 
+  while (auxMapaBits != NULL) { 
+    fprintf(fpOUT, "%s", auxMapaBits->linha_de_bits); 
+    auxMapaBits = auxMapaBits->prox; 
+  } 
+ 
+  fprintf(fpOUT, "\nTD:"); 
+ 
+  /*imprime a tabela de definicoes*/ 
+  while (auxDefinicoes != NULL) { 
+    fprintf(fpOUT, " %s %d", auxDefinicoes->simbolo.nome, auxDefinicoes->simbolo.posicao); 
+    auxDefinicoes = auxDefinicoes->prox; 
+  } 
+ 
+  fprintf(fpOUT, "\nTU:"); 
+ 
+  /*imprime a tabela de uso*/ 
+  while (auxUso != NULL) { 
+    fprintf(fpOUT, " %s %d", auxUso->nomeSimboloExtern, auxUso->posicaoDoUso); 
+    auxUso = auxUso->prox; 
+  } 
+ 
+  fprintf(fpOUT, "\nT: "); 
+ 
+  /*imprime o programa final*/ 
+  while (auxProgFinal != NULL) { 
+    fprintf(fpOUT, "%s", auxProgFinal->linha); 
+    auxProgFinal = auxProgFinal->prox; 
+  } 
+} 
+ 
+char* convert_asm_to_o(char nomeArquivo[]){ 
+  char parte_asm[] = ".asm"; 
+  char* ponto_de_mudanca; 
+ 
+  ponto_de_mudanca = strstr(nomeArquivo, parte_asm); 
+ 
+  if(ponto_de_mudanca == NULL){ 
+    printf("ERRO! Arquivo dado em formato invalido!\n"); 
+    exit(1); 
+  }  
+  else { 
+    strcpy(ponto_de_mudanca, ".o\0"); 
+  } 
+  return nomeArquivo; 
+} 
+
+
+void duasPassagens(char *nomeArquivoIN, char *nomeArquivoASM, int NumArgs){ 
   FILE *fpIN, *fpOUT;
+  char *nomeArquivoOUT; 
+ 
+  nomeArquivoOUT = convert_asm_to_o(nomeArquivoASM); 
+
   fpIN = fopen(nomeArquivoIN, "r");
   if(fpIN == NULL){
     printf("Erro ao abrir o arquivo!\n");
@@ -601,14 +861,18 @@ void duasPassagens(char *nomeArquivoIN, char *nomeArquivoOUT){
     return;
   }
 
-  while (!feof(fpIN)) primeiraPassagem(fpIN);
+  while (!feof(fpIN)) primeiraPassagem(fpIN, NumArgs); 
+  verificaBeginEnd(); 
   /*imprimeSimbolos();*/
   rewind(fpIN);
   resetInMacro();
-  while (!feof(fpIN)) segundaPassagem(fpIN, fpOUT);
+  tamanhoPrograma = contPos; 
+  contPos = 0; 
+  while (!feof(fpIN)) segundaPassagem(fpIN); 
   verificaStops();
+  monta_arquivo_final(nomeArquivoIN, fpOUT);
 
-  esvaziaTabela();
+  esvaziaTabelas();
   fclose(fpIN);
   fclose(fpOUT);
 

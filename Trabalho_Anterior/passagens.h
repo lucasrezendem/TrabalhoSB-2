@@ -16,6 +16,35 @@ struct listSimbolo {
   ListSimbolo *prox;
 };
 
+typedef struct listDefinicoesTemp ListDefinicoesTemp; 
+ 
+struct listDefinicoesTemp { 
+  char nomeSimboloPublic[50]; 
+  ListDefinicoesTemp *prox; 
+}; 
+ 
+typedef struct listTabUso ListTabUso; 
+ 
+struct listTabUso { 
+  char nomeSimboloExtern[50]; 
+  int posicaoDoUso; 
+  ListTabUso *prox; 
+}; 
+ 
+typedef struct listProgramaFinal ListProgramaFinal; 
+ 
+struct listProgramaFinal { 
+  char linha[50]; 
+  ListProgramaFinal *prox; 
+}; 
+ 
+typedef struct listMapaBits ListMapaBits; 
+ 
+struct listMapaBits { 
+  char linha_de_bits[4]; 
+  ListMapaBits *prox; 
+}; 
+
 typedef struct instrucao {
   char nome[7];
   char opcode[3];
@@ -23,16 +52,22 @@ typedef struct instrucao {
 } Instrucao;
 
 typedef struct diretiva {
-  char nome[6];
+  char nome[7];
   int operandos;
   int espaco;
 } Diretiva;
 
-/*Operacoes sobre a tabela de símbolos*/
+/*Operacoes sobre a tabela de símbolos, tabela de definicoes, tabela de uso, lista do programa final e do mapa de bits*/
 void adicionaSimbolo(Simbolo sim);
+void adicionaDefinicao(Simbolo sim);
+void adicionaDefinicaoTemp(char rotulo[]);
+void adicionaUso(char rotulo[], int posicao);
+void adicionaLinhaProgFinal(char nova_linha[]);
+void adicionaLinhaDeBits(char nova_linha_de_bits[]);
 ListSimbolo *procuraSimbolo( char *NomeSim);
+ListDefinicoesTemp *procuraDefinicaoTemp(char rotulo[]);
 void removeSimbolo(Simbolo sim);
-void esvaziaTabela();
+void esvaziaTabelas();
 void imprimeSimbolos();
 
 /*Operacoes sobre as tabelas de instrucoes e diretivas*/
@@ -46,8 +81,9 @@ void validaTokens(int i, char tokens[10][50],  char *numLinha, int instPos);
 void validaSecao( char tokens[10][50],  char *numLinha);
 int getInstPos( char tokens[10][50],  char *numLinha, int i, int passagem);
 int calculaEspaco( char tokens[10][50],  char *numLinha, int instPos, int i);
+void verificaBeginEnd();
 
-void primeiraPassagem(FILE *fp);
+void primeiraPassagem(FILE *fp, int NumArgs);
 
 char* separaTokenDoOffset(char *token, int *offset);
 int getErroCompilacao();
@@ -55,9 +91,11 @@ void verificaSecaoAtual( char tokens[10][50]);
 void verificaEspacoAlocado(Simbolo simb, int offset,  char *numLinha);
 void verificaStops();
 
-void segundaPassagem(FILE *fp, FILE *fpfinal);
+void segundaPassagem(FILE *fp);
 
-void duasPassagens(char *nomeArquivoIN, char *nomeArquivoOUT);
+void monta_arquivo_final(char *nomeArquivoIN, FILE *fpOUT);
+char* convert_asm_to_o(char nomeArquivo[]);
+void duasPassagens(char *nomeArquivoIN, char *nomeArquivoASM, int NumArgs);
 
 void resetInMacro();
 #endif
