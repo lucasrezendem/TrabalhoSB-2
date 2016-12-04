@@ -5,7 +5,7 @@
 #include "passagens.h"
 
 int main(int argc, char *argv[]){
-	char *aux = "mod_a.asm";
+	char *aux;
 	int i; 
 
 	if(argc > 4){
@@ -18,9 +18,10 @@ int main(int argc, char *argv[]){
 	}
 
 	for(i=0; i<argc-1; i++){ 
+		aux = argv[i+1];
     	/*aux = preprocessamento(argv[argc-1], NULL); 
     	aux = expansaoDeMacros(aux, NULL); */
-    	duasPassagens(aux, argv[argc-1], argc-1); 
+    	duasPassagens(aux, argc-1); 
     }
 
 	return 0;

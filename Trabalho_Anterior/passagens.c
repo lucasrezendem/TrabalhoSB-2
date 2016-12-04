@@ -278,9 +278,9 @@ int procuraDiretiva( char *nome, int operandos){
 
 int separaTokens(FILE *fp, char tokens[10][50]) {
   int i, j;
-  char linha[160], *aux = NULL; /*cada linha tem NO MAXIMO cerca de 160 caracteres*/
+  char linha[160] = "string_inicial", *aux = NULL; /*cada linha tem NO MAXIMO cerca de 160 caracteres*/
   fscanf(fp, "%[^\n]", linha); /*pega a linha a qual o fp estava apontando*/
-  if(feof(fp)) {
+  if(feof(fp) && strcmp("string_inicial", linha) == 0) {
   	return -1;
   }
   fseek(fp, 1, SEEK_CUR); /*faz o fp sair do \n e ja apontar pra proxima linha*/
@@ -473,6 +473,7 @@ void primeiraPassagem(FILE *fp, int NumArgs){
 
     espaco = calculaEspaco(tokens, numLinha, instPos, i);
 
+
     /*Se o programa receber mais de um ASM, verifica BEGIN e END*/ 
     if(NumArgs > 1){ 
       if(strcasecmp(tokens[0], "BEGIN") == 0 || strcasecmp(tokens[1], "BEGIN") == 0) achouBegin = 1;  
@@ -534,15 +535,15 @@ void primeiraPassagem(FILE *fp, int NumArgs){
   }
 }
 
-void verificaBeginEnd(){ 
+void verificaBeginEnd(char *arquivoIN){ 
   if(achouBegin == 0){ 
     erroCompilacao = 1; 
-    printf("\nERRO >> erro semântico detectado (Nao foi encontrado nenhum BEGIN no programa)\n"); 
+    printf("\nERRO >> erro semântico detectado (Nao foi encontrado nenhum BEGIN no arquivo %s)\n", arquivoIN); 
   } 
  
   if(achouEnd == 0){ 
     erroCompilacao = 1; 
-    printf("\nERRO >> erro semântico detectado (Nao foi encontrado nenhum END no programa)\n"); 
+    printf("\nERRO >> erro semântico detectado (Nao foi encontrado nenhum END no arquivo %s)\n", arquivoIN); 
   } 
  
   achouBegin = 0; 
@@ -850,11 +851,13 @@ char* convert_asm_to_o(char nomeArquivo[]){
 } 
 
 
-void duasPassagens(char *nomeArquivoIN, char *nomeArquivoASM, int NumArgs){ 
+void duasPassagens(char *nomeArquivoIN, int NumArgs){ 
   FILE *fpIN, *fpOUT;
-  char *nomeArquivoOUT; 
+  char *nomeArquivoOUT, aux[100]; 
+
+  strcpy(aux, nomeArquivoIN);
   
-  nomeArquivoOUT = convert_asm_to_o(nomeArquivoASM); 
+  nomeArquivoOUT = convert_asm_to_o(aux); 
 
   fpIN = fopen(nomeArquivoIN, "r");
   if(fpIN == NULL){
@@ -868,12 +871,14 @@ void duasPassagens(char *nomeArquivoIN, char *nomeArquivoASM, int NumArgs){
   }
 
   while (!feof(fpIN)) primeiraPassagem(fpIN, NumArgs); 
-  if(NumArgs > 1) verificaBeginEnd(); 
+  if(NumArgs > 1) verificaBeginEnd(nomeArquivoIN); 
   /*imprimeSimbolos();*/
   rewind(fpIN);
   resetInMacro();
   tamanhoPrograma = contPos; 
   contPos = 0; 
+  secText = 0;
+
   while (!feof(fpIN)) segundaPassagem(fpIN); 
   verificaStops();
 
@@ -885,8 +890,16 @@ void duasPassagens(char *nomeArquivoIN, char *nomeArquivoASM, int NumArgs){
 
   if(getErroCompilacao() == 1){
     remove(nomeArquivoOUT);
-    printf("Devido aos erros detectados, o arquivo objeto nao foi gerado.\n");
+    printf("Devido aos erros detectados, o objeto do arquivo %s nao foi gerado.\n", nomeArquivoIN);
   }
+
+  /*zerando as variaveis globais para serem usadas novamente*/
+  contPos = 0;
+  secText = 0;
+  erroCompilacao = 0;
+  quantStops = 0;
+  achouBegin = 0;
+  achouEnd = 0;
 
   return;
 }

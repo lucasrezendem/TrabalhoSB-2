@@ -81,7 +81,7 @@ void validaTokens(int i, char tokens[10][50],  char *numLinha, int instPos);
 void validaSecao( char tokens[10][50],  char *numLinha);
 int getInstPos( char tokens[10][50],  char *numLinha, int i, int passagem);
 int calculaEspaco( char tokens[10][50],  char *numLinha, int instPos, int i);
-void verificaBeginEnd();
+void verificaBeginEnd(char *arquivoIN);
 
 void primeiraPassagem(FILE *fp, int NumArgs);
 
@@ -95,7 +95,7 @@ void segundaPassagem(FILE *fp);
 
 void monta_arquivo_final(char *nomeArquivoIN, FILE *fpOUT);
 char* convert_asm_to_o(char nomeArquivo[]);
-void duasPassagens(char *nomeArquivoIN, char *nomeArquivoASM, int NumArgs);
+void duasPassagens(char *nomeArquivoIN, int NumArgs);
 
 void resetInMacro();
 #endif
