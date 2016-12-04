@@ -3,9 +3,14 @@
 #include <stdlib.h>
 #include "parser.h"
 
-void recuperaInformacoes(FILE *fp, ProgInfo *info) {
-
+void recuperaInformacoes(char *arquivo, ProgInfo *info) {
     int tam;
+
+    FILE *fp = fopen("PROGA", "r");
+    if (fp == NULL) {
+        printf("ERRO AO ABRIR O ARQUIVO!\n");
+        exit(1);
+    }
 
     fgets(info->nome, sizeof(info->nome), fp);
     fgets(info->tamanho, sizeof(info->tamanho), fp);
@@ -45,6 +50,7 @@ void recuperaInformacoes(FILE *fp, ProgInfo *info) {
     info->realocacao[strlen(info->realocacao) - 2] = '\0';
     info->codigo[strlen(info->codigo) - 2] = '\0';
 
+    fclose(fp);
 }
 
 void liberaInfo(ProgInfo *info) {

@@ -1,4 +1,4 @@
-/*Programa responsavel por extrair as informações do programa ligado*/
+/*Funcoes responasveis por extrair as informações do programa ligado*/
 
 typedef struct progInfo {
     char nome[260]; /*o nome do programa só pode ter no maximo 255 caracters*/
@@ -8,7 +8,7 @@ typedef struct progInfo {
 } ProgInfo;
 
 /*Recupera as informacoes do programa em forma de string*/
-void recuperaInformacoes(FILE *fp, ProgInfo *info);
+void recuperaInformacoes(char *arquivo, ProgInfo *info);
 
 /*Libera as alocacoes dinamicas de um ProgInfo*/
 void liberaInfo(ProgInfo *info);
