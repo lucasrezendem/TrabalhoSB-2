@@ -213,9 +213,13 @@ return lis1;
 
 void escreveMapaArq (char *nome, int fator, mapaBits *A, mapaBits *B, mapaBits *C){
 	mapaBits *aux1 = A, *aux2 = B, *aux3 = C;
-	char nomeAux[TAM+2];
-	strcpy(nomeAux,nome);
-	strcat(nomeAux,".o");
+	char nomeAux[TAM];
+	int tamanho = strlen (nome);
+	strcpy(nomeAux, nome);
+	nomeAux[tamanho-2]='\0';
+	printf("%s", nomeAux);
+	getchar();
+
 	FILE *fp = fopen (nomeAux, "w+");
 	if(!fp){
 		printf("Não foi possível criar arquivo");
@@ -264,9 +268,13 @@ void escreveSaida (FILE *fp_orig, char *nome, tabSimb *tabS, tabSimb *tabU, mapa
 	mapaBits *bits = mpBits;
 	tabSimb *simb = tabS, *tabUso = tabU;
 	int valor, impr=0, pos=0, achou=0;
-	char nomeAux[TAM+2], xx[2],c;
-	strcpy(nomeAux,nome);
-	strcat(nomeAux,".o");
+	char xx[2],c;
+	char nomeAux[TAM];
+	int tamanho = strlen (nome);
+	strcpy(nomeAux, nome);
+	nomeAux[tamanho-2]='\0';
+
+
 	FILE *fp_sai = fopen (nomeAux, "a+");
 	if(!fp_sai){
 		printf("Não foi possível criar arquivo");
@@ -382,19 +390,21 @@ int qntosArq (char *arq1, char *arq2, char *arq3){
 		}
 	}
 	/* PASSA FATOR DE CORREÇÃO NAS TABELAS DE SIMBOLOS DO PROGRAMAS B E C*/
-	if(caso>N_ARQU1){
+	if(caso>=N_ARQU1){
 		fseek(fp1,0,SEEK_SET);	
 		fator1 = pegaFatorCorr (fp1);
 		corrige (simbolos2, fator1);
 		corrige (tabUso2, fator1);
 	}
-	if(caso==N_ARQU3){
+	if(caso>=N_ARQU2){
 		fseek(fp2,0,SEEK_SET);	
 		fator2 = pegaFatorCorr (fp2);
 		fator2 += fator1;
-		corrige (simbolos3, fator2);
-		corrige (tabUso3, fator1);
-		fator3 = pegaFatorCorr (fp3);
+		if(caso==N_ARQU3){
+			corrige (simbolos3, fator2);
+			corrige (tabUso3, fator1);
+			fator3 = pegaFatorCorr (fp3);
+		}
 	}
 	printf("\ncorreção começa");
 	/* CORRIGE VALORES DA TABELA DE SIMBOLOS PARA OS CORRETOS*/
@@ -407,7 +417,12 @@ int qntosArq (char *arq1, char *arq2, char *arq3){
 	}
 	printf("\ne termina");
 	/*COMEÇA A ESCREVER ARQUIVO DE SAIDA .O*/
-	escreveMapaArq (arq1, (fator2+fator3) , sequencia1, sequencia2, sequencia3);
+	if(caso==N_ARQU3)
+		escreveMapaArq (arq1, (fator2+fator3) , sequencia1, sequencia2, sequencia3);
+	if(caso==N_ARQU2)
+		escreveMapaArq (arq1, (fator2) , sequencia1, sequencia2, sequencia3);
+	if(caso==N_ARQU1)
+		escreveMapaArq (arq1, (fator1) , sequencia1, sequencia2, sequencia3);
 
 	escreveSaida (fp1, arq1, simbolos1, tabUso1, sequencia1, 0);
 
@@ -438,7 +453,7 @@ int qntosArq (char *arq1, char *arq2, char *arq3){
 
 int main () {
 	printf("\ncomeca\n");
-	int result = qntosArq ("PROGA","PROGB","PROGC");
+	int result = qntosArq ("PROGA.o","PROGB.o","PROGC.o");
 	printf("\nfim\n");
 return 0;
 }
