@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "realocador.h"
 
 void initMem(MemTipo *mem, int chunks, int *tamanhos, int *locais) {
@@ -29,14 +30,42 @@ void realoca(MemTipo *mem, ProgInfo *info, int16_t *codigo, int modo) {
     int tam = atoi(info->tamanho);
 
     if (modo > 0) currChunk = modo - 1;
-    
+
     for(i = 0, j = 0; i < tam; i++, j++) {
         if(j == mem->tamanhos[currChunk]) {
             j = 0;
             currChunk++;
         }
         if(info->realocacao[i] == '1') {
-            codigo[i] += mem->locais[currChunk] + j;
+            codigo[i] += mem->locais[currChunk];
+            if (codigo[i] > 32767 || codigo[i] < -32768) {
+                printf("Erro: overflow no valor do código\n");
+                exit(1);
+            }
         }
     }
+}
+
+void escreveSaida(int16_t *codigo, ProgInfo *info) {
+    char *arqNome;
+
+    arqNome = malloc((strlen(info->nome) + 4) * sizeof(char));
+
+    strcpy(arqNome, info->nome);
+    strcat(arqNome, ".im");
+
+    FILE *fp = fopen(arqNome, "w+");
+    if (!fp) {
+        printf("Erro ao ecrever arquivo de saída\n");
+        free(arqNome);
+        exit(1);
+    }
+
+    int i;
+    for (i = 0; i < atoi(info->tamanho); i++) {
+        fprintf(fp, "%d ", codigo[i]);
+    }
+    fprintf(fp, "\n");
+
+    free(arqNome);
 }

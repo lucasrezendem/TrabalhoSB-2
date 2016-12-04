@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -ansi
-DEPS = parser.h realocador.h
-OBJ = parser.o realocador.o
+DEPS = parser.h realocador.h simulador.h
+OBJ = parser.o realocador.o simulador.o
 OBJ += carregador.o
 SIM = simulador.o
 
@@ -11,13 +11,12 @@ SIM = simulador.o
 carregador: $(OBJ)
 	gcc -o $@ $^ $(CFLAGS)
 
-simulador: $(SIM)
-	$(CC) -o $@ $^ $(CFLAGS)
-
 .PHONY: clean
 
 clean:
 	rm -f parser.o
 	rm -f carregador.o
 	rm -f realocador.o
+	rm -f simulador.o
 	rm -f carregador
+	rm -f PROGA.im
