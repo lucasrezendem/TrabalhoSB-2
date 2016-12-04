@@ -1,3 +1,7 @@
+#ifndef PARSER_H
+#define  PARSER_H
+
+#include <stdint.h>
 /*Funcoes responasveis por extrair as informações do programa ligado*/
 
 typedef struct progInfo {
@@ -15,3 +19,7 @@ void liberaInfo(ProgInfo *info);
 
 /*Inicializa um novo ProgInfo*/
 void novaInfo(ProgInfo *info);
+
+/*Extrai o código para um vetor de inteiros*/
+int16_t *extraiCodigo(ProgInfo *info);
+#endif

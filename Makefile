@@ -1,7 +1,8 @@
 CC = gcc
 CFLAGS = -Wall -ansi
-DEPS = parser.h
-OBJ = parser.o probe.o
+DEPS = parser.h realocador.h
+OBJ = parser.o realocador.o
+OBJ += probe.o
 SIM = simulador.o
 
 %.o: %.c $(DEPS)
@@ -18,4 +19,5 @@ simulador: $(SIM)
 clean:
 	rm -f parser.o
 	rm -f probe.o
+	rm -f realocador.o
 	rm -f probe

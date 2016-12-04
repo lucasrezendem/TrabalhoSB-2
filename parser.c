@@ -45,10 +45,10 @@ void recuperaInformacoes(char *arquivo, ProgInfo *info) {
     memmove(info->codigo, info->codigo + 3, strlen(info->codigo));
 
     /*retirar "\n"*/
-    info->nome[strlen(info->nome) - 2] = '\0';
-    info->tamanho[strlen(info->tamanho) - 2] = '\0';
-    info->realocacao[strlen(info->realocacao) - 2] = '\0';
-    info->codigo[strlen(info->codigo) - 2] = '\0';
+    info->nome[strlen(info->nome) - 1] = '\0';
+    info->tamanho[strlen(info->tamanho) - 1] = '\0';
+    info->realocacao[strlen(info->realocacao) - 1] = '\0';
+    info->codigo[strlen(info->codigo) - 1] = '\0';
 
     fclose(fp);
 }
@@ -64,4 +64,32 @@ void liberaInfo(ProgInfo *info) {
 void novaInfo(ProgInfo *info) {
     info->realocacao = NULL;
     info->codigo = NULL;
+}
+
+int16_t *extraiCodigo(ProgInfo *info) {
+    int16_t *cod;
+    int tam, int_aux;
+    char aux[5];
+
+    tam = atoi(info->tamanho);
+
+    cod = (int16_t *) malloc(tam*sizeof(int16_t));
+    if(!cod) {
+        printf("Erro ao alocar memoria\n");
+        exit(1);
+    }
+
+    /*Como o sscanf nao anda na string j faz a movimentacao ao longo da string*/
+    int i, j;
+    for(i = 0, j = 0 ; i < tam; i++, j += strlen(aux) + 1) {
+        sscanf(info->codigo + j, "%s", aux);
+        int_aux = atoi(aux);
+        if(int_aux > 32767 || int_aux < -32768){
+            printf("ERRO: VALOR COM MAIS DE 16 BITS ENCONTRADO!\n");
+            free(cod);
+            exit(1);
+        }
+        cod[i] = int_aux;
+    }
+    return cod;
 }
