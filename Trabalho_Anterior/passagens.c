@@ -779,20 +779,16 @@ void segundaPassagem(FILE *fp){
 }
 
 void monta_arquivo_final(char *nomeArquivoIN, FILE *fpOUT){ 
-  char *nomeArquivo; 
+  char nomePrograma[100]; 
   ListSimbolo *auxDefinicoes = ldefinicoes; 
   ListTabUso *auxUso = luso; 
   ListProgramaFinal *auxProgFinal = lprogfinal; 
   ListMapaBits *auxMapaBits = lmapabits; 
  
-  /*transforma "arquivo".asm em simplesmente "arquivo"*/ 
-  nomeArquivo = strtok(nomeArquivoIN, "."); 
-  if(nomeArquivo == NULL){ 
-    printf("ERRO! Nome do arquivo nao pode ser encontrado!\n"); 
-    exit(1); 
-  }  
+  strcpy(nomePrograma, nomeArquivoIN);
+  nomePrograma[strlen(nomePrograma)-4] = '\0'; /*retira o .asm do nome do arquivo*/
  
-  fprintf(fpOUT, "H: %s\n", nomeArquivo); 
+  fprintf(fpOUT, "H: %s\n", nomePrograma); 
   fprintf(fpOUT, "H: %d\n", tamanhoPrograma); 
   fprintf(fpOUT, "H: "); 
  
@@ -847,7 +843,7 @@ char* convert_asm_to_o(char nomeArquivo[]){
 void duasPassagens(char *nomeArquivoIN, char *nomeArquivoASM, int NumArgs){ 
   FILE *fpIN, *fpOUT;
   char *nomeArquivoOUT; 
- 
+  
   nomeArquivoOUT = convert_asm_to_o(nomeArquivoASM); 
 
   fpIN = fopen(nomeArquivoIN, "r");
@@ -862,7 +858,7 @@ void duasPassagens(char *nomeArquivoIN, char *nomeArquivoASM, int NumArgs){
   }
 
   while (!feof(fpIN)) primeiraPassagem(fpIN, NumArgs); 
-  verificaBeginEnd(); 
+  if(NumArgs > 1) verificaBeginEnd(); 
   /*imprimeSimbolos();*/
   rewind(fpIN);
   resetInMacro();
@@ -870,6 +866,7 @@ void duasPassagens(char *nomeArquivoIN, char *nomeArquivoASM, int NumArgs){
   contPos = 0; 
   while (!feof(fpIN)) segundaPassagem(fpIN); 
   verificaStops();
+
   monta_arquivo_final(nomeArquivoIN, fpOUT);
 
   esvaziaTabelas();
