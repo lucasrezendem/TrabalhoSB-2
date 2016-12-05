@@ -292,18 +292,29 @@ int separaTokens(FILE *fp, char tokens[10][50]) {
     if(aux == NULL) break; /*se a linha ja tiver acabado, antes de completar os 10 elementos, acaba com o loop*/
 		strcpy(tokens[i], aux);
 	}
-  for(j = 2; j < i  ; j++) {
+    i--;
+  for(j = 2; j <= i; j++) {
     if (strlen(tokens[j]) < 3 && tokens[j][0] == '+') {
       strcat(tokens[j-1], tokens[j]); /*concatena o + ao simbolo*/
+      printf("tokens[j-1] %s\n", tokens[j-1]);
+      printf("tokens[j] %s\n", tokens[j]);
+      printf("j = %d i = %d\n", j, i);
     }
     if (tokens[j-2][strlen(tokens[j-2])-1] == '+') {
       strcat(tokens[j-2], tokens[j]); /*concatena o offset a string "simbolo+"*/
       strcpy(tokens[j-1], tokens[i]); /*passa o marcador de linha pra posicao onde fica o +*/
 
+      printf("tokens[j-2]%s\n", tokens[j-2]);
+      printf("tokens[j-1] %s\n", tokens[j-1]);
+      printf("tokens[j] %s\n", tokens[j]);
+      printf("tokens[i] %s\n", tokens[i]);
+
       i -= 2; /*decrementa em 2 o maior indice dessa linha*/
     }
   }
-
+  for (j = 0; j <= i; j++) {
+      printf("token[%d] %s\n", j, tokens[j]);
+  }
   return i;
 }
 
