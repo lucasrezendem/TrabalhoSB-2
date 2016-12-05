@@ -26,7 +26,6 @@ tabSimb *aux2 = aux1;
     {
        aux2 = aux1;
        aux1 = aux1->next;
-	printf("\n %s, %d", aux2->simbolo, aux2->valor);
        free(aux2);
     }
 
@@ -151,7 +150,6 @@ return lista;
 int pegaFatorCorr (FILE *fp){
 	char H[TAM], c;
 	int corretor, cont=0;
-	mapaBits *sequencia = NULL;
 
 	while(!feof(fp)){
 		fscanf(fp,"%s",H);
@@ -217,8 +215,6 @@ void escreveMapaArq (char *nome, int fator, mapaBits *A, mapaBits *B, mapaBits *
 	int tamanho = strlen (nome);
 	strcpy(nomeAux, nome);
 	nomeAux[tamanho-2]='\0';
-	printf("%s", nomeAux);
-	getchar();
 
 	FILE *fp = fopen (nomeAux, "w+");
 	if(!fp){
@@ -287,23 +283,17 @@ void escreveSaida (FILE *fp_orig, char *nome, tabSimb *tabS, tabSimb *tabU, mapa
 		fscanf(fp_orig,"%s", xx);
 		if(xx[0]!='x'){
 			impr = atoi(xx);
-			printf("\n\n((%d)) %d, %d", impr,bits->valor,pos);
 			if(bits->valor == 0){
 				fprintf(fp_sai,"%d ",impr);
-				printf("\n\nescreve 0: %d ",impr);
 			}
 			else{
 				tabUso = tabU;
 				achou = 0;
 				while(tabUso !=NULL){
-					printf("\n\naqui ok %d - %s, %d", pos,tabUso->simbolo, tabUso->valor-fator );
 					if(tabUso->valor-fator == pos){
-						printf("%s - %d", tabUso->simbolo, tabUso->valor);
 						simb = tabS;
 						while(simb!=NULL){
-							printf("\n\nprocura %s (%d)  ",simb->simbolo,simb->valor);
 							if(strcmp(simb->simbolo,tabUso->simbolo)==0){
-								printf("\n\nescreve 1: %s - %d", simb->simbolo, (impr+simb->valor));
 								fprintf(fp_sai,"%d ",(impr+simb->valor));
 								achou=1;	
 							}
@@ -315,7 +305,6 @@ void escreveSaida (FILE *fp_orig, char *nome, tabSimb *tabS, tabSimb *tabU, mapa
 					tabUso = tabUso -> next;
 				}
 				if(achou==0){
-					printf("\n\nescreve 2: %d (%d)  ",(impr+fator), impr);
 					fprintf(fp_sai,"%d ",(impr+fator));
 				}
 			}
@@ -337,8 +326,8 @@ void escreveSaida (FILE *fp_orig, char *nome, tabSimb *tabS, tabSimb *tabU, mapa
 
 
 
-int qntosArq (char *arq1, char *arq2, char *arq3){
-	int caso = 0, corretor=0, fator1=0, fator2=0, fator3=0;
+void ligador (char *arq1, char *arq2, char *arq3){
+	int caso = 0, fator1=0, fator2=0, fator3=0;
 	if (strcmp(arq2,"")==0){	/*checa quantos arquivos foram fornecidos ao ligador*/
 		caso = N_ARQU1;
 	}
@@ -406,7 +395,6 @@ int qntosArq (char *arq1, char *arq2, char *arq3){
 			fator3 = pegaFatorCorr (fp3);
 		}
 	}
-	printf("\ncorreção começa");
 	/* CORRIGE VALORES DA TABELA DE SIMBOLOS PARA OS CORRETOS*/
 		simbolos1 = tabGlobal (simbolos1, simbolos2, simbolos3);
 	if(caso>N_ARQU1){
@@ -415,7 +403,6 @@ int qntosArq (char *arq1, char *arq2, char *arq3){
 	if(caso == N_ARQU3){
 		simbolos3 = tabGlobal (simbolos3, simbolos2, simbolos1);
 	}
-	printf("\ne termina");
 	/*COMEÇA A ESCREVER ARQUIVO DE SAIDA .O*/
 	if(caso==N_ARQU3)
 		escreveMapaArq (arq1, (fator2+fator3) , sequencia1, sequencia2, sequencia3);
@@ -448,12 +435,15 @@ int qntosArq (char *arq1, char *arq2, char *arq3){
 		liberaTabSimb (tabUso3);
 		fclose(fp3);
 	}
-	return caso;
 }
 
-int main () {
-	printf("\ncomeca\n");
-	int result = qntosArq ("PROGA.o","PROGB.o","PROGC.o");
-	printf("\nfim\n");
+int main (int argc, char *argv[]) {
+
+	if (argc == 2)
+		ligador (argv[1],"","");
+	if (argc == 3)
+		ligador (argv[1],argv[2],"");
+	if (argc == 4)
+		ligador (argv[1],argv[2],argv[3]);
 return 0;
 }
