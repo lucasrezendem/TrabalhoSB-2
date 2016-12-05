@@ -418,7 +418,7 @@ int calculaEspaco( char tokens[10][50],  char *numLinha, int instPos, int i) {
       erroCompilacao = 0;
       switch (diretiva) {
         case NAO_ENCONTRADO:
-          if (procuraInstrucao(tokens[instPos], expParams) != NAO_ENCONTRADO) printf(" ");
+          if (procuraInstrucao(tokens[instPos], expParams) != NAO_ENCONTRADO) printf("\0");
           else /*printf("\nERRO >> erro semântico detectado na linha: %s (Diretiva desconhecida: '%s')\n", numLinha, tokens[instPos]);
          */ break;
         case EXCESSO_OPERANDOS:
