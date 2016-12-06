@@ -1,6 +1,6 @@
-# TrabalhoSB-1
+# TrabalhoSB-2
 
-Primeiro Trabalho de SB
+Segundo Trabalho de SB
 
 ## Integrantes
 
@@ -14,10 +14,16 @@ Lucas Rezende de Macedo - 14/0026363
 
 Compilado em linux (Ubuntu e Arch)
 
-Para compilar o montador:
+Para compilar:
 * abra o diretorio raiz do arquivo
 * digite "make"
 
-Para compilar o simulador:
-* abra o diretorio raiz do arquivo
-* digite "make simulador"
+## Instrucoes de Execução
+Para executar o montador:
+* digite "./montador "nome-dos-arquivos.asm""
+
+Para executar o ligador:
+* digite "./ligador "nome-dos-arquivos.asm""
+
+Para executar o carregador:
+* digite "./carregador "nome-dos-arquivos.asm""
