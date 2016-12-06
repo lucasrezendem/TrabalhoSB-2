@@ -23,7 +23,7 @@ Para executar o montador:
 * digite "./montador "nome-dos-arquivos.asm""
 
 Para executar o ligador:
-* digite "./ligador "nome-dos-arquivos.asm""
+* digite "./ligador "nome-dos-arquivos.o""
 
 Para executar o carregador:
-* digite "./carregador "nome-dos-arquivos.asm""
+* digite "./carregador "nome-dos-arquivos""
