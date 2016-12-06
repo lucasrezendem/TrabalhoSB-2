@@ -873,11 +873,11 @@ char* convert_asm_to_o(char nomeArquivo[]){
 }
 
 
-void duasPassagens(char *nomeArquivoIN, int NumArgs){
+void duasPassagens(char *nomeArquivoIN, int NumArgs, char *arqOrig){
   FILE *fpIN, *fpOUT;
   char *nomeArquivoOUT, aux[100];
 
-  strcpy(aux, nomeArquivoIN);
+  strcpy(aux, arqOrig);
 
   nomeArquivoOUT = convert_asm_to_o(aux);
 

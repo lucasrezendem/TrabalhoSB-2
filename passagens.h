@@ -16,34 +16,34 @@ struct listSimbolo {
   ListSimbolo *prox;
 };
 
-typedef struct listDefinicoesTemp ListDefinicoesTemp; 
- 
-struct listDefinicoesTemp { 
-  char nomeSimboloPublic[50]; 
-  ListDefinicoesTemp *prox; 
-}; 
- 
-typedef struct listTabUso ListTabUso; 
- 
-struct listTabUso { 
-  char nomeSimboloExtern[50]; 
-  int posicaoDoUso; 
-  ListTabUso *prox; 
-}; 
- 
-typedef struct listProgramaFinal ListProgramaFinal; 
- 
-struct listProgramaFinal { 
-  char linha[50]; 
-  ListProgramaFinal *prox; 
-}; 
- 
-typedef struct listMapaBits ListMapaBits; 
- 
-struct listMapaBits { 
-  char linha_de_bits[4]; 
-  ListMapaBits *prox; 
-}; 
+typedef struct listDefinicoesTemp ListDefinicoesTemp;
+
+struct listDefinicoesTemp {
+  char nomeSimboloPublic[50];
+  ListDefinicoesTemp *prox;
+};
+
+typedef struct listTabUso ListTabUso;
+
+struct listTabUso {
+  char nomeSimboloExtern[50];
+  int posicaoDoUso;
+  ListTabUso *prox;
+};
+
+typedef struct listProgramaFinal ListProgramaFinal;
+
+struct listProgramaFinal {
+  char linha[50];
+  ListProgramaFinal *prox;
+};
+
+typedef struct listMapaBits ListMapaBits;
+
+struct listMapaBits {
+  char linha_de_bits[4];
+  ListMapaBits *prox;
+};
 
 typedef struct instrucao {
   char nome[7];
@@ -95,7 +95,7 @@ void segundaPassagem(FILE *fp);
 
 void monta_arquivo_final(char *nomeArquivoIN, FILE *fpOUT);
 char* convert_asm_to_o(char nomeArquivo[]);
-void duasPassagens(char *nomeArquivoIN, int NumArgs);
+void duasPassagens(char *nomeArquivoIN, int NumArgs, char *arqOrig);
 
 void resetInMacro();
 #endif
