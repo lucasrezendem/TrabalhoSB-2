@@ -516,7 +516,7 @@ void primeiraPassagem(FILE *fp, int NumArgs){
         else simb.posicao = simPos;
         simb.valor = valor;
         simb.tam = espaco;
-
+        /*
         printf("nome: %s \ttam: %d\t", simb.nome, simb.tam);
         switch (simb.tipo) {
             case EXTERN:
@@ -533,9 +533,9 @@ void primeiraPassagem(FILE *fp, int NumArgs){
             break;
             default:
             printf("ERRO\n");
-        }
+        }*/
         adicionaSimbolo(simb);
-        if (procuraDefinicaoTemp(rotulo) != NULL) adicionaDefinicao(simb); /*se tiver sido declarado como public antes, entao coloca na tabela de definicoes*/
+        if (procuraDefinicaoTemp(rotulo) != NULL || strcasecmp(tokens[1], "BEGIN") == 0) adicionaDefinicao(simb); /*se tiver sido declarado como public antes, entao coloca na tabela de definicoes*/
       }
       else {
      /*   erroCompilacao = 1;

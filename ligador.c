@@ -52,10 +52,10 @@ tabSimb *addTabSimb (tabSimb *l, char label[TAM], int numero,int definido){
 	strcpy(novo->simbolo,label);
 	novo->valor = numero;
 	novo->externo = definido;
-	    
+
 	if(aux == NULL){
 		novo->next = NULL;
-		 return novo; 
+		 return novo;
 	}
 	while(aux->next !=NULL){
 		aux=aux->next;
@@ -114,7 +114,7 @@ mapaBits *pegaMapaBits (FILE *fp){
 				if(c!='\n')
 					sequencia = addMapaBits (sequencia, zeroOuUm);
 			}
-			cont = 0; 
+			cont = 0;
 			break;
 		}
 	}
@@ -162,7 +162,7 @@ int pegaFatorCorr (FILE *fp){
 				fscanf(fp,"%d", &corretor);
 				return corretor;
 			}
-			cont = 0; 
+			cont = 0;
 			break;
 		}
 	}
@@ -175,7 +175,7 @@ void corrige (tabSimb *lis, int fator){
 		while(aux!=NULL){
 			if(aux->externo == INTERNO){
 				aux->valor += fator;
-				
+
 			}
 			aux = aux->next;
 		}
@@ -201,9 +201,9 @@ tabSimb *tabGlobal (tabSimb *lis1, tabSimb *lis2, tabSimb *lis3){
 						orig->valor += aux3->valor;
 					aux3 = aux3->next;
 				}
-			}	
+			}
 		}
-	
+
 		orig = orig->next;
 	}
 return lis1;
@@ -221,22 +221,22 @@ void escreveMapaArq (char *nome, int fator, mapaBits *A, mapaBits *B, mapaBits *
 		printf("Não foi possível criar arquivo");
 		exit(1);
 	}
-	fprintf(fp,"H: %s\nH: %d\nH: ",nome, fator);
+	fprintf(fp,"H: %s\nH: %d\nH: ",nomeAux, fator);
 
 	while(aux1!=NULL){
 		fprintf(fp,"%d",aux1->valor);
-		aux1 = aux1->next; 
+		aux1 = aux1->next;
 	}
 	if(B!=NULL){
 		while(aux2!=NULL){
 			fprintf(fp,"%d",aux2->valor);
-			aux2 = aux2->next; 
+			aux2 = aux2->next;
 		}
 	}
 	if(C!=NULL){
 		while(aux3!=NULL){
 			fprintf(fp,"%d",aux3->valor);
-			aux3 = aux3->next; 
+			aux3 = aux3->next;
 		}
 	}
 	fprintf(fp,"\nT: ");
@@ -254,7 +254,7 @@ int achaT (FILE *fp){
 		if(cont==5){
 			fseek(fp,3,SEEK_CUR);
 			return ftell(fp);
-		}	
+		}
 
 	}
 return ftell(fp);
@@ -269,7 +269,6 @@ void escreveSaida (FILE *fp_orig, char *nome, tabSimb *tabS, tabSimb *tabU, mapa
 	int tamanho = strlen (nome);
 	strcpy(nomeAux, nome);
 	nomeAux[tamanho-2]='\0';
-
 
 	FILE *fp_sai = fopen (nomeAux, "a+");
 	if(!fp_sai){
@@ -295,12 +294,12 @@ void escreveSaida (FILE *fp_orig, char *nome, tabSimb *tabS, tabSimb *tabU, mapa
 						while(simb!=NULL){
 							if(strcmp(simb->simbolo,tabUso->simbolo)==0){
 								fprintf(fp_sai,"%d ",(impr+simb->valor));
-								achou=1;	
+								achou=1;
 							}
-	
+
 							simb = simb->next;
 						}
-	
+
 					}
 					tabUso = tabUso -> next;
 				}
@@ -380,13 +379,13 @@ void ligador (char *arq1, char *arq2, char *arq3){
 	}
 	/* PASSA FATOR DE CORREÇÃO NAS TABELAS DE SIMBOLOS DO PROGRAMAS B E C*/
 	if(caso>=N_ARQU1){
-		fseek(fp1,0,SEEK_SET);	
+		fseek(fp1,0,SEEK_SET);
 		fator1 = pegaFatorCorr (fp1);
 		corrige (simbolos2, fator1);
 		corrige (tabUso2, fator1);
 	}
 	if(caso>=N_ARQU2){
-		fseek(fp2,0,SEEK_SET);	
+		fseek(fp2,0,SEEK_SET);
 		fator2 = pegaFatorCorr (fp2);
 		fator2 += fator1;
 		if(caso==N_ARQU3){

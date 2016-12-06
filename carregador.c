@@ -75,6 +75,7 @@ int main(int argc, char *argv[]) {
 
     codigo = extraiCodigo(&info);
 
+    /*
     printf("tam ex:%s\n", info.tamanho);
 
     printf("Codigo:\n");
@@ -82,7 +83,7 @@ int main(int argc, char *argv[]) {
         printf("%3hd ", codigo[i]);
     }
     printf("\n");
-
+    */
     simula(codigo, atoi(info.tamanho));
 
     espaco = verificaEspaco(&mem, atoi(info.tamanho));
