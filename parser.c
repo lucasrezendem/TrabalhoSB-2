@@ -6,7 +6,7 @@
 void recuperaInformacoes(char *arquivo, ProgInfo *info) {
     int tam;
 
-    FILE *fp = fopen("PROGA", "r");
+    FILE *fp = fopen(arquivo, "r");
     if (fp == NULL) {
         printf("ERRO AO ABRIR O ARQUIVO!\n");
         exit(1);

@@ -419,7 +419,7 @@ int calculaEspaco( char tokens[10][50],  char *numLinha, int instPos, int i) {
       switch (diretiva) {
         case NAO_ENCONTRADO:
           if (procuraInstrucao(tokens[instPos], expParams) != NAO_ENCONTRADO) printf(" ");
-          else /*printf("\nERRO >> erro semântico detectado na linha: %s (Diretiva desconhecida: '%s')\n", numLinha, tokens[instPos]);
+         /* else printf("\nERRO >> erro semântico detectado na linha: %s (Diretiva desconhecida: '%s')\n", numLinha, tokens[instPos]);
          */ break;
         case EXCESSO_OPERANDOS:
           /*printf("\nERRO >> erro sintático detectado na linha: %s (Diretiva com excesso de operandos)\n", numLinha);
@@ -516,6 +516,24 @@ void primeiraPassagem(FILE *fp, int NumArgs){
         else simb.posicao = simPos;
         simb.valor = valor;
         simb.tam = espaco;
+
+        printf("nome: %s \ttam: %d\t", simb.nome, simb.tam);
+        switch (simb.tipo) {
+            case EXTERN:
+            printf("EXTERN\n");
+            break;
+            case LABEL:
+            printf("LABEL\n");
+            break;
+            case VARIAVEL:
+            printf("VARIAVEL\n");
+            break;
+            case CONSTANTE:
+            printf("CONSTANTE\n");
+            break;
+            default:
+            printf("ERRO\n");
+        }
         adicionaSimbolo(simb);
         if (procuraDefinicaoTemp(rotulo) != NULL) adicionaDefinicao(simb); /*se tiver sido declarado como public antes, entao coloca na tabela de definicoes*/
       }

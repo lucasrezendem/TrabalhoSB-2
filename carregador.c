@@ -69,11 +69,19 @@ int main(int argc, char *argv[]) {
     }
 
     novaInfo(&info);
-    recuperaInformacoes("PROGA", &info);
+    recuperaInformacoes(argv[1], &info);
 
     initMem(&mem, chunks, tamanhos, locais);
 
     codigo = extraiCodigo(&info);
+
+    printf("tam ex:%s\n", info.tamanho);
+
+    printf("Codigo:\n");
+    for(i = 0; i < atoi(info.tamanho); i++) {
+        printf("%3hd ", codigo[i]);
+    }
+    printf("\n");
 
     simula(codigo, atoi(info.tamanho));
 

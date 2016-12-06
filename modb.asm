@@ -8,5 +8,6 @@ output y
 output val
 output y + 2
 jmp l1
-Y: space 3
+section data
+y: space 3
 end

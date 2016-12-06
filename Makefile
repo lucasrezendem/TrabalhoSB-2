@@ -38,4 +38,4 @@ clean:
 	rm -f montador
 	rm -f carregador
 	rm -f ligador
-	rm -f PROGA.im
+	rm -f *.im
