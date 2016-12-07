@@ -904,7 +904,7 @@ void duasPassagens(char *nomeArquivoIN, int NumArgs, char *arqOrig){
   while (!feof(fpIN)) segundaPassagem(fpIN);
   verificaStops();
 
-  monta_arquivo_final(nomeArquivoIN, fpOUT);
+  monta_arquivo_final(arqOrig, fpOUT);
 
   esvaziaTabelas();
   fclose(fpIN);
