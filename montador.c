@@ -17,10 +17,10 @@ int main(int argc, char *argv[]){
 		return -1;
 	}
 
-	for(i=0; i<argc-1; i++){
-    	aux = preprocessamento(argv[argc-1], NULL);
+	for(i=1; i<argc; i++){
+    	aux = preprocessamento(argv[i], NULL);
     	/*aux = expansaoDeMacros(aux, NULL); */
-    	duasPassagens(aux, argc-1, argv[argc-1]);
+    	duasPassagens(aux, argc-1, argv[i]);
     }
 
 	return 0;

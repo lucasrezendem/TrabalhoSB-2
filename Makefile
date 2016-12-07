@@ -27,14 +27,8 @@ carregador: $(CARR)
 .PHONY: clean
 
 clean:
-	rm -f parser.o
-	rm -f carregador.o
-	rm -f realocador.o
-	rm -f simulador.o
-	rm -f pre_mcr.o
-	rm -f passagens.o
-	rm -f montador.o
-	rm -f ligador.o
+	rm -f *.pre
+	rm -f *.o
 	rm -f montador
 	rm -f carregador
 	rm -f ligador
